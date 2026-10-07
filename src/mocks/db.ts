@@ -1,4 +1,4 @@
-import type { User, Webhook } from '../api/types';
+import type { User, Webhook } from '../api/schemas';
 
 export const MOCK_CREDENTIALS = { email: 'admin@example.com', password: 'password123' } as const;
 export const MOCK_CSRF_TOKEN = 'b2c7f1e0a9d84f3c8e6a5d4b3c2a1f0e';

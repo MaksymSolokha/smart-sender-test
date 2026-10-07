@@ -1,24 +1,31 @@
-export type ApiErrorType =
-  | 'BadRequestException'
-  | 'AuthenticationException'
-  | 'NotFoundException'
-  | 'TokenMismatchException'
-  | 'ValidationException';
+import { z } from 'zod';
 
-export type FieldErrors = Record<string, string[]>;
+const apiErrorTypeSchema = z.enum([
+  'BadRequestException',
+  'AuthenticationException',
+  'NotFoundException',
+  'TokenMismatchException',
+  'ValidationException',
+]);
 
-export interface ApiErrorBody {
-  error: {
-    type: ApiErrorType;
-    message: string;
-    payload?: FieldErrors;
-  };
-}
+const fieldErrorsSchema = z.record(z.string(), z.array(z.string()));
+
+const apiErrorBodySchema = z.object({
+  error: z.object({
+    type: apiErrorTypeSchema,
+    message: z.string(),
+    payload: fieldErrorsSchema.optional(),
+  }),
+});
+
+export type ApiErrorType = z.infer<typeof apiErrorTypeSchema>;
+export type FieldErrors = z.infer<typeof fieldErrorsSchema>;
+export type ApiErrorBody = z.infer<typeof apiErrorBodySchema>;
 
 export class ApiError extends Error {
   constructor(
     readonly status: number,
-    readonly type: ApiErrorType | 'UnknownError',
+    readonly type: ApiErrorType | 'InvalidResponse' | 'UnknownError',
     message: string,
     readonly fieldErrors: FieldErrors = {},
   ) {
@@ -35,23 +42,12 @@ export function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError;
 }
 
-function isApiErrorBody(value: unknown): value is ApiErrorBody {
-  if (typeof value !== 'object' || value === null || !('error' in value)) return false;
-  const { error } = value;
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'type' in error &&
-    typeof error.type === 'string' &&
-    'message' in error &&
-    typeof error.message === 'string'
-  );
-}
-
 export async function toApiError(response: Response): Promise<ApiError> {
   const body: unknown = await response.json().catch(() => null);
-  if (isApiErrorBody(body)) {
-    return new ApiError(response.status, body.error.type, body.error.message, body.error.payload);
+  const parsed = apiErrorBodySchema.safeParse(body);
+  if (parsed.success) {
+    const { type, message, payload } = parsed.data.error;
+    return new ApiError(response.status, type, message, payload);
   }
   return new ApiError(response.status, 'UnknownError', `Request failed with status ${response.status}`);
 }

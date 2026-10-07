@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse, type DefaultBodyType, type HttpResponseResolver, type PathParams } from 'msw';
 import type { ApiErrorType, FieldErrors } from '../api/errors';
-import type { Webhook, WebhookList } from '../api/types';
+import type { Webhook, WebhookList } from '../api/schemas';
 import { db, isSessionActive, MOCK_CREDENTIALS, MOCK_CSRF_TOKEN, mockUser, SESSION_TTL_MS } from './db';
 
 const MAX_LIMIT = 100;

@@ -11,4 +11,5 @@ export const userApi = createUserApi(httpClient);
 export const webhooksApi = createWebhooksApi(httpClient);
 
 export { ApiError, isApiError } from './errors';
+export type * from './schemas';
 export type * from './types';

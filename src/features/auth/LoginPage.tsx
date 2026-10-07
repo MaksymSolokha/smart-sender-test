@@ -1,9 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Navigate, useLocation } from 'react-router';
-import type { Credentials } from '../../api';
 import { Spinner } from '../../components/StateMessage';
 import { applyServerErrors } from '../../lib/forms';
 import { useAuth } from './AuthContext';
+import { loginSchema, type LoginValues } from './loginSchema';
 import { getRedirectTarget } from './redirect';
 
 const FIELDS = ['email', 'password'] as const;
@@ -16,7 +17,10 @@ export function LoginPage() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<Credentials>({ defaultValues: { email: '', password: '' } });
+  } = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
   if (state.status === 'loading') return <Spinner />;
   if (state.status === 'authenticated') {

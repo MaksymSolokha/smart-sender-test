@@ -2,6 +2,7 @@ import { isApiError } from '../api';
 
 export function getErrorMessage(error: unknown): string {
   if (isApiError(error)) {
+    if (error.type === 'InvalidResponse') return 'Сервер повернув дані в неочікуваному форматі.';
     if (error.status === 404) return 'Не знайдено.';
     if (error.status >= 500) return 'Помилка сервера. Спробуйте пізніше.';
     return error.message;

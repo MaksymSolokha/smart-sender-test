@@ -5,7 +5,7 @@ import { server } from '../mocks/node';
 import { createAuthApi } from './auth';
 import { ApiError } from './errors';
 import { HttpClient } from './httpClient';
-import type { User, WebhookList } from './types';
+import { userSchema, webhookListSchema, webhookSchema } from './schemas';
 
 const FINGERPRINT = '0123456789abcdef0123456789abcdef';
 const getFingerprint = () => FINGERPRINT;
@@ -55,8 +55,8 @@ describe('HttpClient session refresh', () => {
     const rotateCalls = countRequests('POST', '/auth/token/rotate');
 
     const [me, webhooks] = await Promise.all([
-      client.get<User>('/v1/me'),
-      client.get<WebhookList>('/v1/webhooks?page=1&limit=10'),
+      client.get('/v1/me', { schema: userSchema }),
+      client.get('/v1/webhooks?page=1&limit=10', { schema: webhookListSchema }),
     ]);
 
     expect(unauthorizedCount).toBe(2);
@@ -90,12 +90,22 @@ describe('HttpClient session refresh', () => {
       ),
     );
 
-    const updated = await client.put<{ name: string }>('/v1/webhooks/1', {
-      name: 'Renamed',
-      url: 'https://example.com/hook',
-    });
+    const updated = await client.put(
+      '/v1/webhooks/1',
+      { name: 'Renamed', url: 'https://example.com/hook' },
+      { schema: webhookSchema },
+    );
 
     expect(updated.name).toBe('Renamed');
     expect(csrfCalls.value).toBe(1);
+  });
+
+  it('rejects a response that does not match the schema', async () => {
+    const client = await createSignedInClient();
+    server.use(http.get('*/v1/me', () => HttpResponse.json({ id: 'not-a-number' }), { once: true }));
+
+    await expect(client.get('/v1/me', { schema: userSchema })).rejects.toMatchObject({
+      type: 'InvalidResponse',
+    } satisfies Partial<ApiError>);
   });
 });

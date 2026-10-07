@@ -1,9 +1,11 @@
+import { z } from 'zod';
 import { ApiError, toApiError } from './errors';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT';
 
-export interface RequestOptions {
+export interface RequestOptions<T = void> {
   body?: unknown;
+  schema?: z.ZodType<T>;
   headers?: Record<string, string>;
   signal?: AbortSignal;
   skipSessionRefresh?: boolean;
@@ -31,16 +33,16 @@ export class HttpClient {
 
   constructor(private readonly config: HttpClientConfig) {}
 
-  get<T>(path: string, options?: Omit<RequestOptions, 'body'>): Promise<T> {
-    return this.request<T>('GET', path, options);
+  get<T = void>(path: string, options?: Omit<RequestOptions<T>, 'body'>): Promise<T> {
+    return this.request('GET', path, options);
   }
 
-  post<T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'body'>): Promise<T> {
-    return this.request<T>('POST', path, { ...options, body });
+  post<T = void>(path: string, body?: unknown, options?: Omit<RequestOptions<T>, 'body'>): Promise<T> {
+    return this.request('POST', path, { ...options, body });
   }
 
-  put<T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'body'>): Promise<T> {
-    return this.request<T>('PUT', path, { ...options, body });
+  put<T = void>(path: string, body?: unknown, options?: Omit<RequestOptions<T>, 'body'>): Promise<T> {
+    return this.request('PUT', path, { ...options, body });
   }
 
   onSessionExpired(listener: SessionExpiredListener): () => void {
@@ -48,7 +50,7 @@ export class HttpClient {
     return () => this.sessionExpiredListeners.delete(listener);
   }
 
-  async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<T> {
+  async request<T = void>(method: HttpMethod, path: string, options: RequestOptions<T> = {}): Promise<T> {
     const generationAtStart = this.sessionGeneration;
     let response = await this.sendWithCsrf(method, path, options);
 
@@ -62,7 +64,7 @@ export class HttpClient {
       }
     }
 
-    return parseResponse<T>(response);
+    return parseResponse(response, options.schema);
   }
 
   private rotateSession(): Promise<void> {
@@ -88,7 +90,7 @@ export class HttpClient {
     this.sessionExpiredListeners.forEach((listener) => listener());
   }
 
-  private async sendWithCsrf(method: HttpMethod, path: string, options: RequestOptions): Promise<Response> {
+  private async sendWithCsrf(method: HttpMethod, path: string, options: RequestOptions<unknown>): Promise<Response> {
     const token = await this.getCsrfToken();
     const response = await this.send(method, path, options, token);
     if (response.status !== 419) return response;
@@ -128,7 +130,7 @@ export class HttpClient {
     return this.csrfRequest;
   }
 
-  private send(method: HttpMethod, path: string, options: RequestOptions, csrfToken: string): Promise<Response> {
+  private send(method: HttpMethod, path: string, options: RequestOptions<unknown>, csrfToken: string): Promise<Response> {
     const headers = new Headers(options.headers);
     headers.set('X-Requested-With', 'XMLHttpRequest');
     headers.set('Accept', 'application/json');
@@ -151,9 +153,14 @@ export class HttpClient {
   }
 }
 
-async function parseResponse<T>(response: Response): Promise<T> {
+async function parseResponse<T>(response: Response, schema: z.ZodType<T> | undefined): Promise<T> {
   if (!response.ok) throw await toApiError(response);
-  if (response.status === 204) return undefined as T;
-  const text = await response.text();
-  return (text ? JSON.parse(text) : undefined) as T;
+  if (!schema) return undefined as T;
+
+  const body: unknown = await response.json().catch(() => undefined);
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    throw new ApiError(response.status, 'InvalidResponse', z.prettifyError(parsed.error));
+  }
+  return parsed.data;
 }

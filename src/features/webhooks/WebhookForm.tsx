@@ -1,6 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { WebhookUpdate } from '../../api';
 import { applyServerErrors } from '../../lib/forms';
+import { webhookFormSchema } from './webhookFormSchema';
 
 const FIELDS = ['name', 'url'] as const;
 
@@ -16,7 +18,7 @@ export function WebhookForm({ defaultValues, onSubmit, onCancel }: WebhookFormPr
     handleSubmit,
     setError,
     formState: { errors, isSubmitting, isDirty },
-  } = useForm<WebhookUpdate>({ defaultValues });
+  } = useForm<WebhookUpdate>({ resolver: zodResolver(webhookFormSchema), defaultValues });
 
   const submit = handleSubmit(async (values) => {
     try {
