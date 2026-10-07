@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export function Spinner({ label = 'Завантаження…' }: { label?: string }) {
+export function Spinner({ label = 'Loading…' }: { label?: string }) {
   return (
     <div className="state" role="status" aria-live="polite">
       <span className="spinner" aria-hidden /> {label}

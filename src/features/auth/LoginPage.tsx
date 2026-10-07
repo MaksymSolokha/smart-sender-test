@@ -38,7 +38,7 @@ export function LoginPage() {
   return (
     <main className="auth-page">
       <form className="card form" onSubmit={onSubmit} noValidate>
-        <h1>Вхід</h1>
+        <h1>Sign in</h1>
 
         <label className="field">
           <span>Email</span>
@@ -47,7 +47,7 @@ export function LoginPage() {
         </label>
 
         <label className="field">
-          <span>Пароль</span>
+          <span>Password</span>
           <input
             type="password"
             autoComplete="current-password"
@@ -60,7 +60,7 @@ export function LoginPage() {
         {errors.root?.server && <p className="form-error" role="alert">{errors.root.server.message}</p>}
 
         <button type="submit" className="button primary" disabled={isSubmitting}>
-          {isSubmitting ? 'Вхід…' : 'Увійти'}
+          {isSubmitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
     </main>

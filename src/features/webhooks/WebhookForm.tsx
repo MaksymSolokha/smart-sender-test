@@ -31,7 +31,7 @@ export function WebhookForm({ defaultValues, onSubmit, onCancel }: WebhookFormPr
   return (
     <form className="card form" onSubmit={submit} noValidate>
       <label className="field">
-        <span>Назва</span>
+        <span>Name</span>
         <input aria-invalid={!!errors.name} {...register('name')} />
         {errors.name && <small className="field-error">{errors.name.message}</small>}
       </label>
@@ -46,10 +46,10 @@ export function WebhookForm({ defaultValues, onSubmit, onCancel }: WebhookFormPr
 
       <div className="form-actions">
         <button type="button" className="button" onClick={onCancel}>
-          Скасувати
+          Cancel
         </button>
         <button type="submit" className="button primary" disabled={isSubmitting || !isDirty}>
-          {isSubmitting ? 'Збереження…' : 'Зберегти'}
+          {isSubmitting ? 'Saving…' : 'Save'}
         </button>
       </div>
     </form>

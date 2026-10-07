@@ -29,10 +29,10 @@ function WebhookEditor({ id }: { id: number }) {
   if (isError) {
     if (isApiError(error) && error.status === 404) return <NotFound listPath={listPath} />;
     return (
-      <StateMessage title="Не вдалося завантажити вебхук" tone="error">
+      <StateMessage title="Failed to load webhook" tone="error">
         <p>{getErrorMessage(error)}</p>
         <button type="button" className="button" onClick={() => void refetch()}>
-          Спробувати ще раз
+          Try again
         </button>
       </StateMessage>
     );
@@ -40,8 +40,8 @@ function WebhookEditor({ id }: { id: number }) {
 
   return (
     <>
-      <Link to={listPath} className="back-link">← До списку</Link>
-      <h1>Редагування вебхука</h1>
+      <Link to={listPath} className="back-link">← Back to list</Link>
+      <h1>Edit webhook</h1>
       <WebhookForm
         key={data.id}
         defaultValues={{ name: data.name, url: data.url }}
@@ -57,8 +57,8 @@ function WebhookEditor({ id }: { id: number }) {
 
 function NotFound({ listPath = '/webhooks' }: { listPath?: string }) {
   return (
-    <StateMessage title="Вебхук не знайдено">
-      <Link to={listPath}>Повернутися до списку</Link>
+    <StateMessage title="Webhook not found">
+      <Link to={listPath}>Back to list</Link>
     </StateMessage>
   );
 }

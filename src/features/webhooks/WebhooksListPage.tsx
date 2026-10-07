@@ -19,17 +19,17 @@ export function WebhooksListPage() {
   return (
     <section>
       <div className="toolbar">
-        <h1>Вебхуки</h1>
+        <h1>Webhooks</h1>
         <SearchInput value={search} onChange={setSearch} />
       </div>
 
       {isPending ? (
         <Spinner />
       ) : isError ? (
-        <StateMessage title="Не вдалося завантажити вебхуки" tone="error">
+        <StateMessage title="Failed to load webhooks" tone="error">
           <p>{getErrorMessage(error)}</p>
           <button type="button" className="button" onClick={() => void refetch()}>
-            Спробувати ще раз
+            Try again
           </button>
         </StateMessage>
       ) : data.data.length === 0 ? (
@@ -42,7 +42,7 @@ export function WebhooksListPage() {
         <div className={isPlaceholderData ? 'is-refreshing' : undefined} aria-busy={isPlaceholderData}>
           <WebhooksTable webhooks={data.data} />
           <div className="list-footer">
-            <span className="muted">Знайдено: {data.paging.results.total}</span>
+            <span className="muted">Total: {data.paging.results.total}</span>
             <Pagination page={data.paging.pages.current} lastPage={data.paging.pages.last} onChange={setPage} />
           </div>
         </div>
@@ -60,21 +60,21 @@ interface EmptyStateProps {
 function EmptyState({ search, isPageOutOfRange, onReset }: EmptyStateProps) {
   if (isPageOutOfRange) {
     return (
-      <StateMessage title="Такої сторінки немає">
+      <StateMessage title="This page does not exist">
         <button type="button" className="button" onClick={onReset}>
-          На першу сторінку
+          Go to first page
         </button>
       </StateMessage>
     );
   }
   if (search) {
     return (
-      <StateMessage title={`Нічого не знайдено за запитом «${search}»`}>
+      <StateMessage title={`No webhooks match “${search}”`}>
         <button type="button" className="button" onClick={onReset}>
-          Скинути пошук
+          Clear search
         </button>
       </StateMessage>
     );
   }
-  return <StateMessage title="Вебхуків поки немає" />;
+  return <StateMessage title="No webhooks yet" />;
 }

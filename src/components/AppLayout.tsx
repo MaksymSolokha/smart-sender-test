@@ -19,7 +19,7 @@ export function AppLayout() {
           <div className="header-user">
             <span>{state.user.name}</span>
             <button type="button" className="button" onClick={handleSignOut} disabled={isSigningOut}>
-              Вийти
+              Sign out
             </button>
           </div>
         )}

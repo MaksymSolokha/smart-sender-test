@@ -10,10 +10,10 @@ export function WebhooksTable({ webhooks }: { webhooks: Webhook[] }) {
     <table className="table">
       <thead>
         <tr>
-          <th>Назва</th>
+          <th>Name</th>
           <th>URL</th>
-          <th>Активність</th>
-          <th aria-label="Дії" />
+          <th>Status</th>
+          <th aria-label="Actions" />
         </tr>
       </thead>
       <tbody>
@@ -23,12 +23,12 @@ export function WebhooksTable({ webhooks }: { webhooks: Webhook[] }) {
             <td className="cell-url">{webhook.url}</td>
             <td>
               <span className={`badge ${webhook.active ? 'badge-on' : 'badge-off'}`}>
-                {webhook.active ? 'Активний' : 'Неактивний'}
+                {webhook.active ? 'Active' : 'Inactive'}
               </span>
             </td>
             <td className="cell-actions">
               <Link to={`/webhooks/${webhook.id}`} state={linkState}>
-                Редагувати
+                Edit
               </Link>
             </td>
           </tr>

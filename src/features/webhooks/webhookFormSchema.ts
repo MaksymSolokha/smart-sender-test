@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
 export const webhookFormSchema = z.object({
-  name: z.string().trim().min(1, 'Вкажіть назву').max(255, 'Назва не може бути довшою за 255 символів'),
+  name: z.string().trim().min(1, 'Name is required').max(255, 'Name must be at most 255 characters'),
   url: z
     .string()
     .trim()
-    .min(1, 'Вкажіть URL')
-    .pipe(z.url({ protocol: /^https?$/, error: 'Вкажіть коректну HTTP/HTTPS-адресу' })),
+    .min(1, 'URL is required')
+    .pipe(z.url({ protocol: /^https?$/, error: 'Enter a valid HTTP or HTTPS URL' })),
 });
 
 export type WebhookFormValues = z.infer<typeof webhookFormSchema>;

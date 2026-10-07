@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  email: z.string().trim().min(1, 'Вкажіть email').pipe(z.email('Некоректний email')),
-  password: z.string().min(1, 'Вкажіть пароль'),
+  email: z.string().trim().min(1, 'Email is required').pipe(z.email('Enter a valid email')),
+  password: z.string().min(1, 'Password is required'),
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;

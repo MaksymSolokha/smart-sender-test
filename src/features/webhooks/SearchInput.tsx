@@ -33,8 +33,8 @@ export function SearchInput({ value, onChange }: SearchInputProps) {
     <input
       type="search"
       className="search"
-      placeholder="Пошук за назвою"
-      aria-label="Пошук за назвою"
+      placeholder="Search by name"
+      aria-label="Search by name"
       value={draft}
       onChange={(event) => setDraft(event.target.value)}
     />
